@@ -220,32 +220,31 @@ document.addEventListener('DOMContentLoaded', () => {
       submitBtn.disabled = true;
       submitBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="spin-icon"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Sending...';
 
-      /*
-        ✏️ TO ACTUALLY SEND EMAILS, replace this setTimeout block with:
-
-        Option 1 — Formspree (recommended for beginners):
-        1. Go to https://formspree.io and create a free account
-        2. Create a new form and copy the endpoint URL
-        3. Replace YOUR_FORM_ID below:
-
-        const res = await fetch('https://formspree.io/f/YOUR_FORM_ID', {
+      try {
+        const res = await fetch('https://contact-form-backend-wi5p.onrender.com/api/contact', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-          body: JSON.stringify({ name, email, subject, message })
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: name,
+            email: email,
+            opportunity: subject,
+            message: message
+          })
         });
-        if (res.ok) { ... show success ... }
 
-        Option 2 — EmailJS:
-        https://www.emailjs.com/docs/sdk/installation/
-      */
+        if (res.ok) {
+          showStatus('✅ Message sent successfully! I will get back to you soon.', 'success');
+          form.reset();
+        } else {
+          showStatus('❌ Failed to send message. Please try again.', 'error');
+        }
 
-      // Simulated success (demo only — replace with real API call above)
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
-      showStatus('✅ Message sent successfully! I\'ll get back to you soon.', 'success');
-      form.reset();
-      submitBtn.disabled = false;
-      submitBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Send Message';
+      } catch (error) {
+        showStatus('⚠️ Server error. Please try again later.', 'error');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Send Message';
+      }
     });
   }
 
