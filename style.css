@@ -1316,10 +1316,11 @@ img {
   }
 
   .nav-inner {
-    width: 90%;
-    padding: 0 16px;
-    overflow: visible;
-  }
+  width: 90%;
+  max-width: 1200px;
+  margin-inline: auto;
+  overflow: visible;
+}
 
   .nav-logo {
     font-size: 1.3rem;
