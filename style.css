@@ -1350,3 +1350,12 @@ img {
   .exp-num { font-size: 1.6rem; }
   .contact-form-wrap { padding: 24px; }
 }
+/* Spin animation for loading button */
+.spin-icon {
+  animation: spin-loader 1s linear infinite;
+}
+
+@keyframes spin-loader {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
