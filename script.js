@@ -196,11 +196,25 @@ document.addEventListener('DOMContentLoaded', () => {
   const submitBtn  = document.getElementById('submitBtn');
   const formStatus = document.getElementById('formStatus');
 
+  const SEND_ICON = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>`;
+
+  const SPINNER_ICON = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="spin-icon"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>`;
+
+  function setButtonLoading(isLoading, elapsed) {
+    if (isLoading) {
+      submitBtn.disabled = true;
+      const timeText = elapsed > 0 ? ` (${elapsed}s)` : '';
+      submitBtn.innerHTML = `${SPINNER_ICON} Waking up server${timeText}...`;
+    } else {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = `${SEND_ICON} Send Message`;
+    }
+  }
+
   if (form) {
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
 
-      // Basic validation
       const name    = form.name.value.trim();
       const email   = form.email.value.trim();
       const subject = form.subject.value.trim();
@@ -216,21 +230,27 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      // Loading state
-      submitBtn.disabled = true;
-      submitBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="spin-icon"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Sending... (may take up to 60 sec)';
+      let elapsed = 0;
+      setButtonLoading(true, 0);
+
+      const elapsedTimer = setInterval(() => {
+        elapsed++;
+        setButtonLoading(true, elapsed);
+      }, 1000);
 
       try {
         const res = await fetch('https://contact-form-backend-wi5p.onrender.com/api/contact', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            name: name,
-            email: email,
+            name:        name,
+            email:       email,
             opportunity: subject,
-            message: message
+            message:     message
           })
         });
+
+        clearInterval(elapsedTimer);
 
         if (res.ok) {
           showStatus('✅ Message sent successfully! I will get back to you soon.', 'success');
@@ -240,10 +260,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
       } catch (error) {
+        clearInterval(elapsedTimer);
         showStatus('⚠️ Server error. Please try again later.', 'error');
       } finally {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Send Message';
+        setButtonLoading(false);
       }
     });
   }
@@ -252,7 +272,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!formStatus) return;
     formStatus.textContent = msg;
     formStatus.className   = 'form-status ' + type;
-    setTimeout(() => { formStatus.textContent = ''; formStatus.className = 'form-status'; }, 6000);
+    setTimeout(() => {
+      formStatus.textContent = '';
+      formStatus.className   = 'form-status';
+    }, 6000);
   }
 
 
